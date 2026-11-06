@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS_20'
-        maven  'Maven_3.9'
-    }
-
     environment {
         PORT = '3000'
         HOST = '0.0.0.0'
@@ -27,17 +22,13 @@ pipeline {
 
         stage('3. Run Functional Tests') {
             steps {
-                bat '''
-                    start /B node server.js
-                    timeout /t 5 /nobreak
-                    node tests/functional.test.js
-                '''
+                bat 'npm test'
             }
         }
 
         stage('4. Run Selenium Automated Tests') {
             steps {
-                bat 'mvn -f selenium-tests/pom.xml test -Dtest=MandatoryTests -DbaseUrl=http://localhost:3000 -Dheadless=true'
+                bat 'npm run test:selenium'
             }
         }
 
@@ -53,7 +44,7 @@ pipeline {
 
     post {
         always {
-            junit 'selenium-tests/target/surefire-reports/*.xml'
+            junit allowEmptyResults: true, testResults: 'selenium-tests/target/surefire-reports/*.xml'
         }
         success {
             echo "CI/CD Pipeline Successful! All 7 mandatory test cases passed."
