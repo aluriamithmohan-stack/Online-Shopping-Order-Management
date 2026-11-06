@@ -1,0 +1,173 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="page-header" style="background:linear-gradient(135deg,#1e1b4b,#312e81); color:white;">
+  <div class="container" style="color:white;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+      <div>
+        <h1 style="color:white;">📊 Admin Dashboard</h1>
+        <div style="color:rgba(255,255,255,0.7); font-size:0.9rem;">Welcome back, <%= customerName %>!</div>
+      </div>
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <a href="/admin/products/add" class="btn btn-success" id="addProductLink" data-testid="addProductLink">➕ Add Product</a>
+        <a href="/admin/logout" class="btn btn-secondary">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:3rem;">
+  <%- include('partials/flash') %>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">📦</div>
+      <div class="stat-info">
+        <div class="stat-value"><%= stats.activeProducts %></div>
+        <div class="stat-label">Active Products</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">🛒</div>
+      <div class="stat-info">
+        <div class="stat-value"><%= stats.totalOrders %></div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">👥</div>
+      <div class="stat-info">
+        <div class="stat-value"><%= stats.totalCustomers %></div>
+        <div class="stat-label">Customers</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">💰</div>
+      <div class="stat-info">
+        <div class="stat-value" style="font-size:1.3rem;">₹<%= stats.revenue.toLocaleString('en-IN') %></div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="card mb-8">
+    <div class="card-header">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <h3 style="margin:0;">Product Inventory (<%= products.length %>)</h3>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <input
+            type="text"
+            id="adminProductSearch"
+            class="form-control"
+            placeholder="Search products..."
+            style="max-width:250px;"
+            data-testid="adminProductSearch"
+          />
+          <a href="/admin/products/add" class="btn btn-primary btn-sm">➕ Add Product</a>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table" id="productTable" data-testid="productTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% products.forEach(p => { %>
+          <tr class="admin-product-row" data-name="<%= p.name.toLowerCase() %>">
+            <td style="color:var(--gray-400); font-size:0.8rem;">#<%= p.id %></td>
+            <td>
+              <div style="font-weight:600; font-size:0.9rem;"><%= p.name %></div>
+              <div style="font-size:0.75rem; color:var(--gray-500); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><%= p.description %></div>
+            </td>
+            <td><span class="badge badge-primary"><%= p.category %></span></td>
+            <td style="font-weight:700;">₹<%= p.price.toLocaleString('en-IN', {minimumFractionDigits:2}) %></td>
+            <td>
+              <span class="<%= p.stock === 0 ? 'text-danger fw-bold' : p.stock <= 5 ? 'text-warning fw-bold' : '' %>">
+                <%= p.stock %>
+              </span>
+            </td>
+            <td>
+              <span class="badge <%= p.is_active ? 'badge-success' : 'badge-gray' %>">
+                <%= p.is_active ? 'Active' : 'Inactive' %>
+              </span>
+            </td>
+            <td>
+              <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <a href="/admin/products/<%= p.id %>/edit"
+                   class="btn btn-sm btn-secondary"
+                   id="editProductBtn"
+                   data-testid="editProductBtn"
+                   title="Edit">✏️ Edit</a>
+                <form action="/admin/products/<%= p.id %>/toggle" method="POST" style="display:inline;">
+                  <button type="submit"
+                          class="btn btn-sm <%= p.is_active ? 'btn-warning' : 'btn-success' %>"
+                          id="toggleProductBtn"
+                          data-testid="toggleProductBtn"
+                          data-confirm="<%= p.is_active ? 'Deactivate' : 'Activate' %> this product?">
+                    <%= p.is_active ? '⏸️' : '▶️' %>
+                  </button>
+                </form>
+                <form action="/admin/products/<%= p.id %>/delete" method="POST" style="display:inline;">
+                  <button type="submit"
+                          class="btn btn-sm btn-danger"
+                          id="deleteProductBtn"
+                          data-testid="deleteProductBtn"
+                          data-confirm="Permanently delete this product? This cannot be undone.">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="card">
+    <div class="card-header"><h3 style="margin:0;">🛒 Recent Orders</h3></div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order Code</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (recentOrders.length === 0) { %>
+          <tr><td colspan="5" style="text-align:center; color:var(--gray-400); padding:2rem;">No orders yet</td></tr>
+          <% } else { %>
+          <% recentOrders.forEach(o => { %>
+          <tr>
+            <td style="font-family:monospace; font-weight:700; color:var(--primary);"><%= o.order_code %></td>
+            <td><%= o.customer_name %></td>
+            <td style="font-weight:700;">₹<%= o.total_amount.toLocaleString('en-IN', {minimumFractionDigits:2}) %></td>
+            <td><span class="badge badge-success"><%= o.status %></span></td>
+            <td style="color:var(--gray-500); font-size:0.85rem;"><%= new Date(o.created_at).toLocaleDateString('en-IN') %></td>
+          </tr>
+          <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

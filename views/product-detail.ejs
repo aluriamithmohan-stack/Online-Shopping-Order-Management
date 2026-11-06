@@ -1,0 +1,71 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>🔍 <%= product.name %></h1>
+    <div class="breadcrumb">
+      <a href="/products">Products</a><span class="sep">/</span>
+      <span><%= product.category %></span><span class="sep">/</span>
+      <span><%= product.name %></span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:3rem;">
+  <%- include('partials/flash') %>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;">
+    <!-- Image -->
+    <div style="background:var(--white); border-radius:var(--radius-xl); padding:2rem; box-shadow:var(--shadow); text-align:center;">
+      <img src="<%= product.image_url %>" alt="<%= product.name %>"
+           style="max-height:400px; width:100%; object-fit:contain;"
+           onerror="this.src='/images/default-product.png'" />
+    </div>
+
+    <!-- Details -->
+    <div>
+      <span class="badge badge-primary" style="margin-bottom:0.75rem;"><%= product.category %></span>
+      <h1 style="font-size:1.75rem; margin-bottom:0.75rem;"><%= product.name %></h1>
+      <div style="font-size:2rem; font-weight:800; color:var(--primary); margin-bottom:1rem;">
+        ₹<%= product.price.toLocaleString('en-IN', {minimumFractionDigits:2}) %>
+      </div>
+      <div style="color:var(--gray-600); margin-bottom:1.5rem; line-height:1.7;"><%= product.description %></div>
+
+      <div style="
+        display:flex; align-items:center; gap:0.5rem;
+        padding:0.75rem 1rem;
+        background:<%= product.stock > 0 ? 'var(--success-light)' : 'var(--danger-light)' %>;
+        border-radius:var(--radius);
+        margin-bottom:1.5rem;
+        font-weight:600;
+        color:<%= product.stock > 0 ? '#15803d' : '#b91c1c' %>;
+      ">
+        <%= product.stock > 0 ? '✅ In Stock (' + product.stock + ' available)' : '❌ Out of Stock' %>
+      </div>
+
+      <% if (product.stock > 0) { %>
+      <form action="/cart/add" method="POST">
+        <input type="hidden" name="product_id" value="<%= product.id %>" />
+        <div class="form-group">
+          <label class="form-label">Quantity</label>
+          <div class="qty-control" style="max-width:150px;">
+            <button type="button" class="qty-btn qty-minus">−</button>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" max="<%= product.stock %>" data-testid="quantity" />
+            <button type="button" class="qty-btn qty-plus">+</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="addToCartBtn" data-testid="addToCartBtn">
+          🛒 Add to Cart
+        </button>
+      </form>
+      <% } else { %>
+      <button class="btn btn-secondary btn-lg" disabled>Out of Stock</button>
+      <% } %>
+
+      <a href="/products" class="btn btn-secondary" style="margin-top:0.75rem; display:inline-flex;">← Back to Catalogue</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

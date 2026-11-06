@@ -1,0 +1,47 @@
+<%# views/partials/navbar.ejs %>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <!-- Brand -->
+    <a class="navbar-brand" href="/">
+      <span class="brand-icon">🛒</span>
+      <span>Shop<em>Ease</em></span>
+    </a>
+
+    <% if (isLoggedIn && !isAdmin) { %>
+    <!-- Search Bar (customers only) -->
+    <form class="search-bar" action="/products" method="GET" role="search">
+      <input
+        type="text"
+        id="searchBox"
+        name="q"
+        placeholder="Search products..."
+        value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+        autocomplete="off"
+        data-testid="searchBox"
+      />
+      <button type="submit" id="searchBtn" data-testid="searchBtn" aria-label="Search">🔍 Search</button>
+    </form>
+    <% } %>
+
+    <!-- Nav Links -->
+    <ul class="navbar-nav">
+      <% if (!isLoggedIn) { %>
+        <li><a href="/auth/login" class="<%= locals.title === 'Sign In' ? 'active' : '' %>">Sign In</a></li>
+        <li><a href="/auth/register" class="btn btn-primary btn-nav-cta">Register</a></li>
+      <% } else if (isAdmin) { %>
+        <li><a href="/admin/dashboard" class="<%= locals.title === 'Admin Dashboard' ? 'active' : '' %>">📊 Dashboard</a></li>
+        <li><a href="/admin/products/add">➕ Add Product</a></li>
+        <li><a href="/admin/logout">🚪 Logout</a></li>
+      <% } else { %>
+        <li><a href="/products" class="<%= locals.title === 'Product Catalogue' || (locals.title && locals.title.startsWith('Search')) ? 'active' : '' %>">🛍️ Shop</a></li>
+        <li>
+          <a href="/cart" class="cart-link <%= locals.title === 'Shopping Cart' ? 'active' : '' %>" id="cartLink" data-testid="cartLink">
+            🛒 Cart
+          </a>
+        </li>
+        <li><a href="/orders" id="orderHistoryBtn" data-testid="orderHistoryBtn" class="<%= locals.title === 'My Orders' ? 'active' : '' %>">📦 Orders</a></li>
+        <li><a href="/auth/logout">🚪 Logout</a></li>
+      <% } %>
+    </ul>
+  </div>
+</nav>

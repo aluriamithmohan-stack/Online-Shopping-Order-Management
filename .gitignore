@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Database (comment out if you want to track it)
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Test output
+test-results/
+coverage/
+
+# Uploaded files
+public/images/uploads/
+
+# Build artifacts
+dist/
+build/
+target/
+selenium-tests/target/

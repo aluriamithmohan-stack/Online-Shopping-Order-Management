@@ -1,0 +1,66 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>📋 Order Details</h1>
+    <div class="breadcrumb">
+      <a href="/">Home</a><span class="sep">/</span>
+      <a href="/orders">Orders</a><span class="sep">/</span>
+      <span><%= order.order_code %></span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:3rem;">
+  <%- include('partials/flash') %>
+
+  <div style="display:grid; grid-template-columns:1fr 320px; gap:2rem; align-items:start;">
+    <!-- Items -->
+    <div>
+      <div class="card">
+        <div class="card-header"><h3 style="margin:0;">Items in this Order</h3></div>
+        <div style="overflow-x:auto;">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% items.forEach(item => { %>
+              <tr>
+                <td style="font-weight:600;"><%= item.product_name %></td>
+                <td><%= item.quantity %></td>
+                <td>₹<%= item.unit_price.toLocaleString('en-IN', {minimumFractionDigits:2}) %></td>
+                <td style="font-weight:700; color:var(--primary);">₹<%= (item.quantity * item.unit_price).toLocaleString('en-IN', {minimumFractionDigits:2}) %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div>
+      <div class="cart-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-row"><span>Order Code</span><span style="font-family:monospace; font-weight:700;"><%= order.order_code %></span></div>
+        <div class="summary-row"><span>Date</span><span><%= new Date(order.created_at).toLocaleDateString('en-IN') %></span></div>
+        <div class="summary-row"><span>Status</span>
+          <span class="badge <%= order.status === 'Confirmed' ? 'badge-success' : 'badge-primary' %>"><%= order.status %></span>
+        </div>
+        <div class="summary-row"><span>Shipping to</span><span style="font-size:0.8rem; text-align:right; max-width:160px;"><%= order.shipping_address %></span></div>
+        <div class="summary-row total"><span>Total Paid</span><span>₹<%= order.total_amount.toLocaleString('en-IN', {minimumFractionDigits:2}) %></span></div>
+        <a href="/orders" class="btn btn-secondary btn-full" style="margin-top:1rem;">← Back to Orders</a>
+        <a href="/products" class="btn btn-primary btn-full" style="margin-top:0.75rem;">🛍️ Shop More</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

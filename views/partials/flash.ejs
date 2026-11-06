@@ -1,0 +1,30 @@
+<%# views/partials/flash.ejs - Flash messages %>
+<% if (typeof success !== 'undefined' && success && success.length > 0) { %>
+  <% const msgs = Array.isArray(success) ? success : [success]; %>
+  <% msgs.forEach(msg => { if (msg) { %>
+  <div class="alert alert-success" data-auto-dismiss="4000">
+    <span class="alert-icon">✅</span>
+    <span><%= msg %></span>
+    <button class="alert-dismiss" aria-label="Dismiss">×</button>
+  </div>
+  <% } }) %>
+<% } %>
+<% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+  <% const errs = Array.isArray(error) ? error : [error]; %>
+  <% errs.forEach(msg => { if (msg) { %>
+  <div class="alert alert-danger" data-auto-dismiss="6000">
+    <span class="alert-icon">❌</span>
+    <span><%= msg %></span>
+    <button class="alert-dismiss" aria-label="Dismiss">×</button>
+  </div>
+  <% } }) %>
+<% } %>
+<% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+  <div class="alert alert-danger">
+    <span class="alert-icon">❌</span>
+    <ul class="alert-list">
+      <% errors.forEach(e => { if (e) { %><li><%= e %></li><% } }) %>
+    </ul>
+    <button class="alert-dismiss" aria-label="Dismiss">×</button>
+  </div>
+<% } %>

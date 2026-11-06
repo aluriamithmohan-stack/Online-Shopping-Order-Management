@@ -1,0 +1,9 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+<div style="text-align:center; padding:5rem 1rem;">
+  <div style="font-size:4rem; margin-bottom:1rem;">⚠️</div>
+  <h1 style="font-size:2rem; margin-bottom:1rem;">Server Error</h1>
+  <p style="color:var(--gray-500); margin-bottom:2rem;"><%= typeof message !== 'undefined' ? message : 'Something went wrong.' %></p>
+  <a href="/" class="btn btn-primary">Go Home</a>
+</div>
+<%- include('partials/footer') %>

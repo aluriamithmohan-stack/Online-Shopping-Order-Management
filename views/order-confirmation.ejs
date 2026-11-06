@@ -1,0 +1,65 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="confirmation-wrapper">
+  <div class="confirmation-card">
+    <div class="confirmation-header">
+      <div class="check-icon">🎉</div>
+      <h1>Order Placed Successfully!</h1>
+      <p>Thank you for shopping with ShopEase</p>
+    </div>
+    <div class="confirmation-body">
+      <div class="order-code-display">
+        <div class="label">Your Order ID</div>
+        <div class="code" id="orderConfirmCode" data-testid="orderConfirmCode"><%= order.order_code %></div>
+      </div>
+
+      <p style="color:var(--gray-500); font-size:0.9rem; margin-bottom:1.5rem;">
+        📧 A confirmation has been recorded for this order.
+        Your items will be shipped within 1–2 business days.
+      </p>
+
+      <!-- Order Items -->
+      <div style="text-align:left; margin-bottom:1.5rem;">
+        <h4 style="margin-bottom:1rem;">Items Ordered</h4>
+        <div style="border:1px solid var(--gray-200); border-radius:var(--radius); overflow:hidden;">
+          <% items.forEach((item, idx) => { %>
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:0.875rem 1rem;
+            border-bottom:<%= idx < items.length - 1 ? '1px solid var(--gray-200)' : 'none' %>;
+          ">
+            <div>
+              <div style="font-weight:600; font-size:0.9rem;"><%= item.product_name %></div>
+              <div style="font-size:0.8rem; color:var(--gray-500);">Qty: <%= item.quantity %> × ₹<%= item.unit_price.toLocaleString('en-IN', {minimumFractionDigits:2}) %></div>
+            </div>
+            <div style="font-weight:700; color:var(--primary);">
+              ₹<%= (item.quantity * item.unit_price).toLocaleString('en-IN', {minimumFractionDigits:2}) %>
+            </div>
+          </div>
+          <% }) %>
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            padding:0.875rem 1rem;
+            background:var(--gray-50);
+            font-weight:800;
+            font-size:1rem;
+          ">
+            <span>Total Paid</span>
+            <span style="color:var(--success);">₹<%= order.total_amount.toLocaleString('en-IN', {minimumFractionDigits:2}) %></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
+        <a href="/orders" class="btn btn-primary" id="viewOrdersBtn" data-testid="viewOrdersBtn">📦 View My Orders</a>
+        <a href="/products" class="btn btn-secondary">🛍️ Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

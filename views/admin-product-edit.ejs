@@ -1,0 +1,127 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>✏️ Edit Product</h1>
+    <div class="breadcrumb">
+      <a href="/admin/dashboard">Dashboard</a><span class="sep">/</span>
+      <span>Edit: <%= product.name %></span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:3rem; max-width:720px;">
+  <%- include('partials/flash') %>
+
+  <div class="card">
+    <div class="card-body">
+      <form action="/admin/products/<%= product.id %>/edit" method="POST" id="editProductForm" data-testid="editProductForm">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label" for="productName">Product Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              id="productName"
+              name="name"
+              value="<%= product.name %>"
+              required
+              data-testid="productName"
+            />
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label" for="productDescription">Description <span class="required">*</span></label>
+            <textarea
+              class="form-control"
+              id="productDescription"
+              name="description"
+              rows="3"
+              required
+              data-testid="productDescription"
+            ><%= product.description %></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productPrice">Price (₹) <span class="required">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              id="productPrice"
+              name="price"
+              value="<%= product.price %>"
+              min="0"
+              step="0.01"
+              required
+              data-testid="productPrice"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productStock">Stock Quantity <span class="required">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              id="productStock"
+              name="stock"
+              value="<%= product.stock %>"
+              min="0"
+              required
+              data-testid="productStock"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productCategory">Category <span class="required">*</span></label>
+            <select class="form-control" id="productCategory" name="category" required data-testid="productCategory">
+              <% ['Electronics','Computers','Footwear','Clothing','Kitchen','Books','Tools','Sports','Beauty','Toys','General'].forEach(cat => { %>
+              <option value="<%= cat %>" <%= product.category === cat ? 'selected' : '' %>><%= cat %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productStatus">Status <span class="required">*</span></label>
+            <select class="form-control" id="productStatus" name="is_active" data-testid="productStatus">
+              <option value="1" <%= product.is_active ? 'selected' : '' %>>Active</option>
+              <option value="0" <%= !product.is_active ? 'selected' : '' %>>Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label" for="productImage">Image URL</label>
+            <input
+              type="text"
+              class="form-control"
+              id="productImage"
+              name="image_url"
+              value="<%= product.image_url %>"
+              data-testid="productImage"
+            />
+          </div>
+        </div>
+
+        <!-- Current product preview -->
+        <div style="margin:1rem 0; padding:0.875rem; background:var(--gray-50); border-radius:var(--radius); border:1px solid var(--gray-200);">
+          <div style="font-size:0.8rem; color:var(--gray-500); margin-bottom:0.5rem;">Product ID: #<%= product.id %> | Created: <%= new Date(product.created_at).toLocaleDateString('en-IN') %></div>
+          <div style="display:flex; align-items:center; gap:1rem;">
+            <img src="<%= product.image_url %>" alt="<%= product.name %>" style="width:60px; height:60px; object-fit:contain; border-radius:var(--radius); background:var(--white);" onerror="this.src='/images/default-product.png'" />
+            <div>
+              <div style="font-weight:600;"><%= product.name %></div>
+              <div style="font-size:0.85rem; color:var(--gray-500);">Current price: ₹<%= product.price.toLocaleString('en-IN') %> | Stock: <%= product.stock %></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:1rem;">
+          <button type="submit" class="btn btn-primary btn-lg" id="updateProductBtn" data-testid="updateProductBtn">💾 Save Changes</button>
+          <a href="/admin/dashboard" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,95 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <h1>Welcome to ShopEase 🛒</h1>
+    <p>Discover thousands of products at unbeatable prices. Fast shipping, easy returns, and 24/7 support.</p>
+    <div class="hero-cta">
+      <a href="/auth/register" class="btn btn-hero-primary">Get Started – It's Free</a>
+      <a href="/auth/login" class="btn btn-hero-secondary">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:2.5rem;">
+      <h2>Why Choose ShopEase?</h2>
+      <p style="color:var(--gray-500); margin-top:0.5rem;">Everything you need for a great shopping experience</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-icon">🚀</div>
+        <h3>Fast Delivery</h3>
+        <p>Get your orders delivered to your doorstep within 2-3 business days.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure Shopping</h3>
+        <p>Your data and payments are protected with industry-standard security.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">↩️</div>
+        <h3>Easy Returns</h3>
+        <p>Not satisfied? Return within 30 days, no questions asked.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💎</div>
+        <h3>Best Prices</h3>
+        <p>We guarantee the best prices across all our product categories.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Preview -->
+<section style="padding:3rem 0; background:var(--gray-50);">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <h2>Popular Categories</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem;">
+      <% const categories = [
+        { icon: '📱', name: 'Electronics' },
+        { icon: '👟', name: 'Footwear' },
+        { icon: '👗', name: 'Clothing' },
+        { icon: '💻', name: 'Computers' },
+        { icon: '🍳', name: 'Kitchen' },
+        { icon: '📚', name: 'Books' }
+      ]; %>
+      <% categories.forEach(cat => { %>
+      <a href="/auth/login" style="
+        background:var(--white);
+        border-radius:var(--radius-lg);
+        padding:1.5rem 1rem;
+        text-align:center;
+        box-shadow:var(--shadow);
+        color:var(--dark);
+        font-weight:600;
+        font-size:0.9rem;
+        transition:var(--transition);
+        border:2px solid transparent;
+      "
+      onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)';"
+      onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+        <div style="font-size:2rem; margin-bottom:0.5rem;"><%= cat.icon %></div>
+        <%= cat.name %>
+      </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section style="padding:4rem 0; background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%); text-align:center; color:white;">
+  <div class="container">
+    <h2 style="color:white; font-size:2rem; margin-bottom:1rem;">Ready to Start Shopping?</h2>
+    <p style="opacity:0.9; margin-bottom:2rem; font-size:1.1rem;">Join thousands of happy customers today.</p>
+    <a href="/auth/register" class="btn btn-hero-primary">Create Your Account</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

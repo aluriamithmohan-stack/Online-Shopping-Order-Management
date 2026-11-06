@@ -1,0 +1,127 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>➕ Add New Product</h1>
+    <div class="breadcrumb">
+      <a href="/admin/dashboard">Dashboard</a><span class="sep">/</span>
+      <span>Add Product</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:3rem; max-width:720px;">
+  <%- include('partials/flash') %>
+
+  <div class="card">
+    <div class="card-body">
+      <form action="/admin/products/add" method="POST" id="addProductForm" data-testid="addProductForm">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label" for="productName">Product Name <span class="required">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              id="productName"
+              name="name"
+              value="<%= formData.name || '' %>"
+              placeholder="Enter product name"
+              required
+              data-testid="productName"
+            />
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label" for="productDescription">Description <span class="required">*</span></label>
+            <textarea
+              class="form-control"
+              id="productDescription"
+              name="description"
+              rows="3"
+              placeholder="Enter a detailed product description (min 10 characters)"
+              required
+              data-testid="productDescription"
+            ><%= formData.description || '' %></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productPrice">Price (₹) <span class="required">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              id="productPrice"
+              name="price"
+              value="<%= formData.price || '' %>"
+              placeholder="e.g. 999.00"
+              min="0"
+              step="0.01"
+              required
+              data-testid="productPrice"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productStock">Stock Quantity <span class="required">*</span></label>
+            <input
+              type="number"
+              class="form-control"
+              id="productStock"
+              name="stock"
+              value="<%= formData.stock || '' %>"
+              placeholder="e.g. 50"
+              min="0"
+              required
+              data-testid="productStock"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productCategory">Category <span class="required">*</span></label>
+            <select
+              class="form-control"
+              id="productCategory"
+              name="category"
+              required
+              data-testid="productCategory"
+            >
+              <option value="">-- Select Category --</option>
+              <% ['Electronics','Computers','Footwear','Clothing','Kitchen','Books','Tools','Sports','Beauty','Toys','General'].forEach(cat => { %>
+              <option value="<%= cat %>" <%= formData.category === cat ? 'selected' : '' %>><%= cat %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="productImage">Image URL</label>
+            <input
+              type="text"
+              class="form-control"
+              id="productImage"
+              name="image_url"
+              value="<%= formData.image_url || '' %>"
+              placeholder="/images/my-product.jpg"
+              data-testid="productImage"
+            />
+            <p class="form-hint">Leave blank to use default image.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:1rem; margin-top:0.5rem;">
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg"
+            id="saveProductBtn"
+            data-testid="saveProductBtn"
+          >
+            ➕ Add Product
+          </button>
+          <a href="/admin/dashboard" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

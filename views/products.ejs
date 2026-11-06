@@ -1,0 +1,128 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<div class="page-header">
+  <div class="container">
+    <h1>🛍️ <%= title %></h1>
+    <div class="breadcrumb">
+      <a href="/">Home</a>
+      <span class="sep">/</span>
+      <span>Products</span>
+      <% if (searchQuery) { %>
+      <span class="sep">/</span>
+      <span>Search: "<%= searchQuery %>"</span>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:3rem;">
+  <%- include('partials/flash') %>
+
+  <!-- Filters Row -->
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+    <!-- Category Filter -->
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <a href="/products<%= searchQuery ? '?q=' + encodeURIComponent(searchQuery) : '' %>"
+         class="btn btn-sm <%= !selectedCategory ? 'btn-primary' : 'btn-secondary' %>">
+        All
+      </a>
+      <% categories.forEach(cat => { %>
+      <a href="/products?<%= searchQuery ? 'q=' + encodeURIComponent(searchQuery) + '&' : '' %>category=<%= encodeURIComponent(cat) %>"
+         class="btn btn-sm <%= selectedCategory === cat ? 'btn-primary' : 'btn-secondary' %>">
+        <%= cat %>
+      </a>
+      <% }) %>
+    </div>
+
+    <!-- Results count -->
+    <div class="text-muted">
+      <%= products.length %> product<%= products.length !== 1 ? 's' : '' %> found
+    </div>
+  </div>
+
+  <!-- Mobile Search -->
+  <form action="/products" method="GET" style="display:none;" class="mobile-search-form">
+    <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
+      <input type="text" id="searchBox" name="q" class="form-control"
+             value="<%= searchQuery %>" placeholder="Search products..." data-testid="searchBox" />
+      <% if (selectedCategory) { %><input type="hidden" name="category" value="<%= selectedCategory %>" /><% } %>
+      <button type="submit" id="searchBtn" class="btn btn-primary" data-testid="searchBtn">🔍</button>
+    </div>
+  </form>
+
+  <!-- Products Grid -->
+  <% if (products.length === 0) { %>
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>No products found</h3>
+    <p>
+      <% if (searchQuery) { %>
+        No products match "<strong><%= searchQuery %></strong>". Try a different search term.
+      <% } else { %>
+        No products are available in this category right now.
+      <% } %>
+    </p>
+    <a href="/products" class="btn btn-primary">View All Products</a>
+  </div>
+  <% } else { %>
+  <div class="products-grid">
+    <% products.forEach(product => { %>
+    <div class="product-card">
+      <div class="product-card-img-wrap">
+        <img
+          src="<%= product.image_url %>"
+          alt="<%= product.name %>"
+          onerror="this.src='/images/default-product.png'"
+          loading="lazy"
+        />
+        <% if (product.stock === 0) { %>
+          <span class="product-card-badge out-of-stock">Out of Stock</span>
+        <% } else if (product.stock <= 5) { %>
+          <span class="product-card-badge" style="background:var(--warning);">Low Stock</span>
+        <% } else { %>
+          <span class="product-card-badge"><%= product.category %></span>
+        <% } %>
+      </div>
+      <div class="product-card-body">
+        <div class="product-card-category"><%= product.category %></div>
+        <h3 class="product-card-name"><%= product.name %></h3>
+        <p class="product-card-desc"><%= product.description %></p>
+        <div class="product-card-footer">
+          <div>
+            <div class="product-price">
+              <span class="currency">₹</span><%= product.price.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+            </div>
+            <div class="product-stock <%= product.stock === 0 ? 'out' : product.stock <= 5 ? 'low' : '' %>">
+              <% if (product.stock === 0) { %>Out of Stock
+              <% } else if (product.stock <= 5) { %><%= product.stock %> left!
+              <% } else { %>In Stock (<%= product.stock %>)
+              <% } %>
+            </div>
+          </div>
+          <% if (product.stock > 0) { %>
+          <form action="/cart/add" method="POST">
+            <input type="hidden" name="product_id" value="<%= product.id %>" />
+            <input type="hidden" name="quantity" value="1" />
+            <button
+              type="submit"
+              class="btn btn-primary btn-sm"
+              id="addToCartBtn"
+              data-testid="addToCartBtn"
+              title="Add to Cart"
+            >
+              🛒 Add
+            </button>
+          </form>
+          <% } else { %>
+          <button class="btn btn-secondary btn-sm" disabled>Unavailable</button>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>
