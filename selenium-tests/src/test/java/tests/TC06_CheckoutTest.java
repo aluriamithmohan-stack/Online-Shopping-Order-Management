@@ -12,47 +12,49 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * TC06: Checkout
- * Expected Result: Order placed
+ * Steps:
+ *   1. Login as a customer.
+ *   2. Add a product to the cart.
+ *   3. Click "Proceed to Checkout".
+ *   4. Click "Place Order" on the review page.
+ * Expected: Order confirmation page should be displayed with a valid Order ID (ORD-...).
  */
 public class TC06_CheckoutTest extends BaseTest {
 
     @BeforeEach
-    public void setupTest() {
-        super.setUp();
-    }
+    public void setupTest() { super.setUp(); }
 
     @AfterEach
-    public void tearDownTest() {
-        super.tearDown();
-    }
+    public void tearDownTest() { super.tearDown(); }
 
     @Test
-    @DisplayName("TC06: Checkout - Expected: Order placed")
+    @DisplayName("TC06: Checkout - Expected: Order placed successfully")
     public void testCheckout() {
         loginAsCustomer();
         clearCart();
 
-        // Add product to cart
+        // Add a product and go to cart
         addFirstProductToCart();
-
-        // Open cart
         navigateTo("/cart");
+
+        // Proceed to checkout
         waitForVisible(By.id("checkoutBtn"));
         clickById("checkoutBtn");
 
-        // Review & Confirm order
+        // Review page
         waitForUrlContains("/orders/checkout/review");
         clickById("placeOrderBtn");
 
-        // Verify confirmation page
+        // Confirmation page
         waitForUrlContains("/orders/confirmation");
         assertTrue(driver.getCurrentUrl().contains("/orders/confirmation"),
-                "Should navigate to order confirmation page");
+                "Should land on the order confirmation page");
 
-        WebElement codeEl = waitForVisible(By.id("orderConfirmCode"));
-        assertNotNull(codeEl, "Order ID code should be displayed on confirmation");
-        assertTrue(codeEl.getText().startsWith("ORD-"),
-                "Order ID code should follow ORD- prefix pattern");
-        System.out.println("✅ TC06: Checkout PASSED - Order placed (" + codeEl.getText() + ")");
+        WebElement orderCode = waitForVisible(By.id("orderConfirmCode"));
+        assertNotNull(orderCode, "Order ID must be shown on confirmation page");
+        assertTrue(orderCode.getText().startsWith("ORD-"),
+                "Order ID should start with 'ORD-'");
+
+        System.out.println("✅ TC06: Checkout PASSED - Order placed (" + orderCode.getText() + ")");
     }
 }

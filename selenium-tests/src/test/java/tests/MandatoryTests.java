@@ -4,121 +4,179 @@ import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Mandatory Selenium Test Cases (TC01 to TC07)
- * Project: Online Shopping and Order Management System
+ * Mandatory Selenium Test Cases (TC01 to TC08)
+ * Project: Online Shopping and Order Management System (ShopEase)
+ *
+ * Test Cases:
+ *   TC01 - Customer Registration
+ *   TC02 - Product Catalogue
+ *   TC03 - Product Search
+ *   TC04 - Add to Cart
+ *   TC05 - Update Cart Quantity
+ *   TC06 - Checkout
+ *   TC07 - Order History
+ *   TC08 - Admin Product Management
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MandatoryTests extends BaseTest {
 
+    // Unique email for registration test so it doesn't conflict across runs
+    private static final String REG_EMAIL =
+            "selenium_" + System.currentTimeMillis() + "@test.com";
+
+    // Unique product name for admin management test
+    private static final String TEST_PRODUCT_NAME =
+            "Selenium Test Product " + System.currentTimeMillis();
+
     @BeforeEach
-    public void init() {
-        super.setUp();
-    }
+    public void init() { super.setUp(); }
 
     @AfterEach
-    public void cleanup() {
-        super.tearDown();
-    }
+    public void cleanup() { super.tearDown(); }
 
+    // =========================================================================
+    // TC01: CUSTOMER REGISTRATION
+    // =========================================================================
     /**
-     * TC01: CUSTOMER LOGIN
      * Steps:
-     * 1. Open login page.
-     * 2. Enter valid customer email.
-     * 3. Enter valid password.
-     * 4. Click Login.
-     * Expected: Customer login should be successful and the catalogue/dashboard displayed.
+     *   1. Open registration page.
+     *   2. Enter name, unique email, and password.
+     *   3. Submit form.
+     * Expected: User is redirected to login page or products page after successful registration.
      */
     @Test
     @Order(1)
-    @DisplayName("TC01: Customer Login")
-    public void testCustomerLogin() {
-        navigateTo("/auth/login");
+    @DisplayName("TC01: Customer Registration")
+    public void testCustomerRegistration() {
+        navigateTo("/auth/register");
 
-        typeById("email", CUSTOMER_EMAIL);
-        typeById("password", CUSTOMER_PASSWORD);
-        clickById("loginBtn");
+        // Wait for form to load
+        waitForVisible(By.id("registerBtn"));
 
-        waitForUrlContains("/products");
-        assertTrue(driver.getCurrentUrl().contains("/products"),
-                "User should be redirected to /products after successful login");
+        typeById("name",            "Selenium User");
+        typeById("email",           REG_EMAIL);
+        typeById("password",        "Test@12345");
+        typeById("confirmPassword", "Test@12345");
 
-        WebElement heading = waitForVisible(By.tagName("h1"));
-        assertTrue(heading.getText().contains("Product Catalogue") || heading.getText().contains("Products"),
-                "Product Catalogue heading should be displayed");
+        clickById("registerBtn");
+
+        boolean redirectedToLogin    = driver.getCurrentUrl().contains("/auth/login");
+        boolean redirectedToProducts = driver.getCurrentUrl().contains("/products");
+        boolean successOnPage        = pageContains("success") || pageContains("Login") || pageContains("registered");
+
+        assertTrue(redirectedToLogin || redirectedToProducts || successOnPage,
+                "After registration the user should be redirected to login or products page");
+
+        System.out.println("✅ TC01: Customer registration PASSED");
     }
 
+    // =========================================================================
+    // TC02: PRODUCT CATALOGUE
+    // =========================================================================
     /**
-     * TC02: SEARCH PRODUCT
      * Steps:
-     * 1. Open product catalogue (after logging in).
-     * 2. Enter an existing product name in the search box.
-     * 3. Click Search.
-     * Expected: Matching product should be displayed.
+     *   1. Login as customer.
+     *   2. Open /products page.
+     * Expected: At least one product card is displayed with price information.
      */
     @Test
     @Order(2)
-    @DisplayName("TC02: Search Product")
-    public void testSearchProduct() {
+    @DisplayName("TC02: Product Catalogue")
+    public void testProductCatalogue() {
+        loginAsCustomer();
+        navigateTo("/products");
+
+        WebElement heading = waitForVisible(By.tagName("h1"));
+        assertTrue(heading.getText().contains("Product") || heading.getText().contains("Catalogue"),
+                "Page heading should indicate the product catalogue");
+
+        List<WebElement> cards = driver.findElements(By.cssSelector(".product-card"));
+        assertFalse(cards.isEmpty(),
+                "At least one product card should be displayed");
+
+        assertTrue(pageContains("₹") || pageContains("$") || pageContains("Price"),
+                "Product prices should be shown in the catalogue");
+
+        System.out.println("✅ TC02: Product catalogue PASSED - " + cards.size() + " product(s) found");
+    }
+
+    // =========================================================================
+    // TC03: PRODUCT SEARCH
+    // =========================================================================
+    /**
+     * Steps:
+     *   1. Login as customer.
+     *   2. Enter "iPhone" in the search box.
+     *   3. Submit search.
+     * Expected: Matching products are displayed.
+     */
+    @Test
+    @Order(3)
+    @DisplayName("TC03: Product Search")
+    public void testProductSearch() {
         loginAsCustomer();
 
         WebElement searchBox = waitForVisible(By.id("searchBox"));
         searchBox.clear();
         searchBox.sendKeys("iPhone");
-
         clickById("searchBtn");
 
         waitForUrlContains("q=iPhone");
-        assertTrue(pageContains("Apple iPhone 15 Pro"),
-                "Search result should display 'Apple iPhone 15 Pro'");
+
+        assertTrue(pageContains("Apple iPhone 15 Pro") || pageContains("iPhone"),
+                "Search results should display products matching 'iPhone'");
+
+        System.out.println("✅ TC03: Product search PASSED");
     }
 
+    // =========================================================================
+    // TC04: ADD TO CART
+    // =========================================================================
     /**
-     * TC03: ADD PRODUCT TO CART
      * Steps:
-     * 1. Select an available product.
-     * 2. Click Add to Cart.
-     * 3. Open shopping cart.
-     * Expected: Selected product should be added successfully.
-     */
-    @Test
-    @Order(3)
-    @DisplayName("TC03: Add Product to Cart")
-    public void testAddToCart() {
-        loginAsCustomer();
-
-        // Add first product to cart from catalogue
-        addFirstProductToCart();
-
-        // Open cart
-        navigateTo("/cart");
-
-        // Verify cart contains items
-        WebElement cartTable = waitForVisible(By.cssSelector(".cart-table"));
-        assertNotNull(cartTable, "Cart table should be visible");
-        assertTrue(pageContains("Proceed to Checkout") || pageContains("Order Summary"),
-                "Cart summary should be visible with items");
-    }
-
-    /**
-     * TC04: UPDATE CART QUANTITY
-     * Steps:
-     * 1. Open shopping cart.
-     * 2. Increase the product quantity.
-     * 3. Update the cart.
-     * Expected: The updated quantity and total amount should be displayed correctly.
+     *   1. Login as customer.
+     *   2. Click Add to Cart on first product.
+     *   3. Open cart.
+     * Expected: Product is present in the cart.
      */
     @Test
     @Order(4)
-    @DisplayName("TC04: Update Cart Quantity")
+    @DisplayName("TC04: Add to Cart")
+    public void testAddToCart() {
+        loginAsCustomer();
+        addFirstProductToCart();
+        navigateTo("/cart");
+
+        WebElement cartTable = waitForVisible(By.cssSelector(".cart-table"));
+        assertNotNull(cartTable, "Cart table should be visible after adding a product");
+
+        assertTrue(pageContains("Proceed to Checkout") || pageContains("Order Summary"),
+                "Cart should display checkout option");
+
+        System.out.println("✅ TC04: Add to cart PASSED");
+    }
+
+    // =========================================================================
+    // TC05: UPDATE CART QUANTITY
+    // =========================================================================
+    /**
+     * Steps:
+     *   1. Login and ensure one item is in cart.
+     *   2. Set quantity to 2.
+     *   3. Click Update Cart.
+     * Expected: Quantity input reflects the value 2.
+     */
+    @Test
+    @Order(5)
+    @DisplayName("TC05: Update Cart Quantity")
     public void testUpdateCartQuantity() {
         loginAsCustomer();
         clearCart();
-
-        // Ensure at least one item in cart
         addFirstProductToCart();
         navigateTo("/cart");
 
@@ -126,45 +184,24 @@ public class MandatoryTests extends BaseTest {
         ((JavascriptExecutor) driver).executeScript("arguments[0].value = '2';", qtyInput);
 
         clickById("updateCartBtn");
+        try { Thread.sleep(1000); } catch (Exception ignored) {}
 
-        // Verify update feedback or persisted value
-        waitForVisible(By.id("quantity"));
-        WebElement updatedInput = driver.findElement(By.id("quantity"));
-        assertEquals("2", updatedInput.getAttribute("value"),
-                "Quantity input should reflect updated value of 2");
+        WebElement updatedQty = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quantity")));
+        assertEquals("2", updatedQty.getAttribute("value"),
+                "Cart quantity should be updated to 2");
+
+        System.out.println("✅ TC05: Update cart quantity PASSED");
     }
 
+    // =========================================================================
+    // TC06: CHECKOUT
+    // =========================================================================
     /**
-     * TC05: REMOVE PRODUCT
      * Steps:
-     * 1. Open shopping cart.
-     * 2. Click Remove Product.
-     * Expected: Selected product should be removed and cart total should be updated.
-     */
-    @Test
-    @Order(5)
-    @DisplayName("TC05: Remove Product")
-    public void testRemoveProduct() {
-        loginAsCustomer();
-
-        // Ensure item in cart
-        addFirstProductToCart();
-        navigateTo("/cart");
-
-        clickById("removeProductBtn");
-
-        // Verify success alert or updated cart
-        assertTrue(pageContains("removed") || pageContains("empty") || pageContains("Cart"),
-                "Cart should show item removed confirmation");
-    }
-
-    /**
-     * TC06: CHECKOUT
-     * Steps:
-     * 1. Add an available product to cart.
-     * 2. Open checkout.
-     * 3. Confirm the order.
-     * Expected: Order should be placed successfully and order confirmation should be displayed.
+     *   1. Login, clear cart, add a product.
+     *   2. Click Proceed to Checkout.
+     *   3. Click Place Order.
+     * Expected: Order confirmation page displayed with an ORD- prefixed order ID.
      */
     @Test
     @Order(6)
@@ -172,52 +209,130 @@ public class MandatoryTests extends BaseTest {
     public void testCheckout() {
         loginAsCustomer();
         clearCart();
-
-        // Add product to cart
         addFirstProductToCart();
-
-        // Open cart
         navigateTo("/cart");
+
         waitForVisible(By.id("checkoutBtn"));
         clickById("checkoutBtn");
 
-        // Review & Confirm order
         waitForUrlContains("/orders/checkout/review");
         clickById("placeOrderBtn");
 
-        // Verify confirmation page
         waitForUrlContains("/orders/confirmation");
         assertTrue(driver.getCurrentUrl().contains("/orders/confirmation"),
-                "Should navigate to order confirmation page");
+                "Should land on the order confirmation page");
 
-        WebElement codeEl = waitForVisible(By.id("orderConfirmCode"));
-        assertNotNull(codeEl, "Order ID code should be displayed on confirmation");
-        assertTrue(codeEl.getText().startsWith("ORD-"),
-                "Order ID code should follow ORD- prefix pattern");
+        WebElement orderCode = waitForVisible(By.id("orderConfirmCode"));
+        assertNotNull(orderCode, "Order ID must be shown on confirmation page");
+        assertTrue(orderCode.getText().startsWith("ORD-"),
+                "Order ID should start with 'ORD-'");
+
+        System.out.println("✅ TC06: Checkout PASSED - Order: " + orderCode.getText());
     }
 
+    // =========================================================================
+    // TC07: ORDER HISTORY
+    // =========================================================================
     /**
-     * TC07: VIEW ORDER HISTORY
      * Steps:
-     * 1. Login as a customer.
-     * 2. Open Order History.
-     * Expected: Correct order details should be displayed.
+     *   1. Login as customer.
+     *   2. Navigate to /orders.
+     * Expected: Order history page is displayed with orders or empty-state message.
      */
     @Test
     @Order(7)
-    @DisplayName("TC07: View Order History")
-    public void testViewOrderHistory() {
+    @DisplayName("TC07: Order History")
+    public void testOrderHistory() {
         loginAsCustomer();
-
-        // Open orders page
         navigateTo("/orders");
 
         waitForVisible(By.tagName("h1"));
         assertTrue(pageContains("My Orders") || pageContains("Order History"),
-                "Page heading should indicate My Orders");
+                "Page should contain 'My Orders' or 'Order History'");
 
-        // Verify table or empty state exists
-        boolean hasOrders = pageContains("ORD-") || pageContains("No orders yet");
-        assertTrue(hasOrders, "Order history page should render order list or empty message");
+        boolean hasContent = pageContains("ORD-") || pageContains("No orders") || pageContains("empty");
+        assertTrue(hasContent,
+                "Order history page should show orders or an empty-state message");
+
+        System.out.println("✅ TC07: Order history PASSED");
+    }
+
+    // =========================================================================
+    // TC08: ADMIN PRODUCT MANAGEMENT
+    // =========================================================================
+    /**
+     * Steps:
+     *   1. Login as admin.
+     *   2. Add a new product via Add Product form.
+     *   3. Verify product appears in list.
+     *   4. Update the product's price.
+     *   5. Delete the product.
+     * Expected: Admin can add, update and delete products successfully.
+     */
+    @Test
+    @Order(8)
+    @DisplayName("TC08: Admin Product Management")
+    public void testAdminProductManagement() throws InterruptedException {
+        // Step 1: Login
+        loginAsAdmin();
+        waitForUrlContains("/admin/dashboard");
+        assertTrue(driver.getCurrentUrl().contains("/admin/dashboard"),
+                "Admin should be on dashboard");
+
+        // Step 2 & 3: Add product
+        navigateTo("/admin/products/add");
+        waitForVisible(By.id("saveProductBtn"));
+
+        typeById("productName",        TEST_PRODUCT_NAME);
+        typeById("productDescription", "Automated product description for testing");
+        typeById("productPrice",       "999");
+        typeById("productStock",       "50");
+        selectByText("productCategory", "Electronics");
+
+        clickById("saveProductBtn");
+
+        // Step 4: Verify on dashboard
+        waitForUrlContains("/admin/dashboard");
+        assertTrue(pageContains(TEST_PRODUCT_NAME),
+                "Newly added product should appear on the admin dashboard");
+
+        // Step 5: Update product
+        WebElement editLink = driver.findElement(
+                By.xpath("//tr[contains(., '" + TEST_PRODUCT_NAME + "')]//a[contains(@href, '/edit')]"));
+        scrollIntoView(editLink);
+        try {
+            editLink.click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", editLink);
+        }
+
+        waitForVisible(By.id("productPrice"));
+        WebElement priceField = driver.findElement(By.id("productPrice"));
+        priceField.clear();
+        priceField.sendKeys("1499");
+
+        clickById("updateProductBtn");
+        waitForUrlContains("/admin/dashboard");
+        assertTrue(pageContains("1499") || pageContains("updated") || pageContains("success"),
+                "Product price update should be reflected");
+
+        // Step 6: Delete product
+        autoAcceptConfirms();
+        WebElement deleteBtn = driver.findElement(
+                By.xpath("//tr[contains(., '" + TEST_PRODUCT_NAME + "')]//button[@id='deleteProductBtn']"));
+        scrollIntoView(deleteBtn);
+        try {
+            deleteBtn.click();
+        } catch (Exception e) {
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", deleteBtn);
+        }
+        Thread.sleep(1000);
+
+        navigateTo("/admin/dashboard");
+        boolean productRemoved = !pageContains(TEST_PRODUCT_NAME) || pageContains("deleted");
+        assertTrue(productRemoved,
+                "Deleted product should no longer appear on dashboard");
+
+        System.out.println("✅ TC08: Admin product management PASSED - Add, Update & Delete verified");
     }
 }

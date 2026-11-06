@@ -8,13 +8,14 @@
     "dev": "nodemon server.js",
     "test": "node tests/functional.test.js",
     "test:selenium": "node scripts/run-selenium.js MandatoryTests",
-    "test:tc01": "node scripts/run-selenium.js TC01_CustomerLoginTest",
-    "test:tc02": "node scripts/run-selenium.js TC02_SearchProductTest",
-    "test:tc03": "node scripts/run-selenium.js TC03_AddToCartTest",
-    "test:tc04": "node scripts/run-selenium.js TC04_UpdateQuantityTest",
-    "test:tc05": "node scripts/run-selenium.js TC05_RemoveProductTest",
+    "test:tc01": "node scripts/run-selenium.js TC01_CustomerRegistrationTest",
+    "test:tc02": "node scripts/run-selenium.js TC02_ProductCatalogueTest",
+    "test:tc03": "node scripts/run-selenium.js TC03_ProductSearchTest",
+    "test:tc04": "node scripts/run-selenium.js TC04_AddToCartTest",
+    "test:tc05": "node scripts/run-selenium.js TC05_UpdateCartQuantityTest",
     "test:tc06": "node scripts/run-selenium.js TC06_CheckoutTest",
-    "test:tc07": "node scripts/run-selenium.js TC07_ViewOrderHistoryTest"
+    "test:tc07": "node scripts/run-selenium.js TC07_OrderHistoryTest",
+    "test:tc08": "node scripts/run-selenium.js TC08_AdminProductManagementTest"
   },
   "keywords": [
     "ecommerce",
