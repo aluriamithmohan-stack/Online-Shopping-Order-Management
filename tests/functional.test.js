@@ -41,13 +41,40 @@ async function runTest(name, fn) {
   }
 }
 
-// ─── CHECK SERVER IS RUNNING ─────────────────────────────────────────────────
-async function checkServer() {
-  return new Promise((resolve, reject) => {
-    const req = http.get(`${BASE_URL}/`, (res) => { resolve(true); });
-    req.on('error', () => reject(new Error('Server is not running. Start with: npm run dev')));
-    req.setTimeout(3000, () => reject(new Error('Server timeout')));
+// ─── CHECK / START SERVER ─────────────────────────────────────────────────────
+const { spawn } = require('child_process');
+const path = require('path');
+let serverProcess = null;
+
+function pingServer() {
+  return new Promise((resolve) => {
+    const req = http.get(`${BASE_URL}/`, (res) => resolve(true));
+    req.on('error', () => resolve(false));
+    req.setTimeout(1000, () => {
+      req.destroy();
+      resolve(false);
+    });
   });
+}
+
+async function ensureServerRunning() {
+  const isUp = await pingServer();
+  if (isUp) return;
+
+  console.log('  [Auto-Start] Launching server on port 3000...');
+  serverProcess = spawn('node', ['server.js'], {
+    cwd: path.resolve(__dirname, '..'),
+    stdio: 'ignore'
+  });
+
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 500));
+    if (await pingServer()) {
+      console.log('  [Auto-Start] Server ready.\n');
+      return;
+    }
+  }
+  throw new Error('Server failed to start on port 3000.');
 }
 
 // ─── TESTS ──────────────────────────────────────────────────────────────────
@@ -57,7 +84,7 @@ async function runAllTests() {
   console.log('=================================================\n');
 
   try {
-    await checkServer();
+    await ensureServerRunning();
     console.log('  ✅ Server is running at ' + BASE_URL + '\n');
   } catch (e) {
     console.error('  ❌ ' + e.message);
@@ -194,12 +221,17 @@ async function runAllTests() {
   });
   console.log('=================================================\n');
 
+  if (serverProcess) {
+    serverProcess.kill();
+  }
+
   if (testsFailed > 0) {
     process.exit(1);
   }
 }
 
 runAllTests().catch(err => {
+  if (serverProcess) serverProcess.kill();
   console.error('Test runner error:', err);
   process.exit(1);
 });
